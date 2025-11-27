@@ -49,13 +49,13 @@ const saveTodo = (text, done = 0, save = 1) => {
 
     todoInput.value = "";
     todoInput.focus();
-}
+};
 
 const toggleForm = () => {
     editForm.classList.toggle("hide");
     todoForm.classList.toggle("hide");
     todoList.classList.toggle("hide");
-}
+};
 
 const updateTodo = (text) => {
     const Alltodo = document.querySelectorAll(".todo")
@@ -67,14 +67,14 @@ const updateTodo = (text) => {
             todoTitle.innerText = text;
 
             updateTodoLocal(oldInput, text);
-        }
-    })
+        };
+    });
 
-}
+};
 
 const getSearch = (search) => {
 
-    const todoList = document.querySelectorAll(".todo")
+    const todoList = document.querySelectorAll(".todo");
 
     todoList.forEach((todo) => {
 
@@ -86,12 +86,12 @@ const getSearch = (search) => {
 
     if(!todoTitle.includes(search)) {
         todo.style.display = "none"
-    }
+    };
 });
 };
 
 const filterList = (filterValue) => {
-    const todoList = document.querySelectorAll(".todo")
+    const todoList = document.querySelectorAll(".todo");
 
     switch(filterValue) {
         case "all":
