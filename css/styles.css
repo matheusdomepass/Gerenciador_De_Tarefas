@@ -8,6 +8,10 @@
     box-sizing: border-box;
 }
 
+html {
+    height: 100vh;
+}
+
 body {
     background-image: url("../img/kelly-sikkema--1_RZL8BGBM-unsplash.jpg");
     background-position: center;

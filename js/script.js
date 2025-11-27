@@ -5,12 +5,15 @@ const todoList = document.querySelector("#todo-list");
 const editForm = document.querySelector("#edit-form");
 const editInput = document.querySelector("#edit-input");
 const cancelEditBtn = document.querySelector("#cancel-edit-btn");
+const searchInput = document.querySelector("#search-input");
+const eraseBtn = document.querySelector("#erase-button");
+const filterBtn = document.querySelector("#filter-select");
 
 let oldInput;
 
 
 // Funções
-const saveTodo = (text) => {
+const saveTodo = (text, done = 0, save = 1) => {
     const todo = document.createElement("div");
     todo.classList.add("todo");
 
@@ -33,6 +36,15 @@ const saveTodo = (text) => {
     removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
     todo.appendChild(removeBtn);
 
+    // Utilizando dados 
+    if(done) {
+        todo.classList.add("done");
+    }
+
+    if(save) {
+        saveTodoLocal({text, done});
+    }
+
     todoList.appendChild(todo);
 
     todoInput.value = "";
@@ -53,10 +65,57 @@ const updateTodo = (text) => {
 
         if(todoTitle.innerText === oldInput){
             todoTitle.innerText = text;
+
+            updateTodoLocal(oldInput, text);
         }
     })
 
 }
+
+const getSearch = (search) => {
+
+    const todoList = document.querySelectorAll(".todo")
+
+    todoList.forEach((todo) => {
+
+    let todoTitle = todo.querySelector("h3").innerText.toLowerCase();
+
+    const normalSearch = search.toLowerCase();
+
+    todo.style.display = "flex";
+
+    if(!todoTitle.includes(search)) {
+        todo.style.display = "none"
+    }
+});
+};
+
+const filterList = (filterValue) => {
+    const todoList = document.querySelectorAll(".todo")
+
+    switch(filterValue) {
+        case "all":
+            todoList.forEach((todo) => (todo.style.display = "flex"));
+            break;
+
+        case "done":
+        todoList.forEach((todo) => 
+            todo.classList.contains("done")
+            ? (todo.style.display = "flex")
+            : (todo.style.display = "none"));
+            break;
+
+        case "todo":
+        todoList.forEach((todo) => 
+            !todo.classList.contains("done")
+            ? (todo.style.display = "flex")
+            : (todo.style.display = "none"));
+            break;
+
+        default:
+            break;
+    }
+};
 
 // Eventos
 todoForm.addEventListener("submit", (e) => {
@@ -80,10 +139,14 @@ document.addEventListener("click", (e) => {
 
     if(targetElement.classList.contains("finish-todo")){
         parentElement.classList.toggle("done");
+
+        updateTodoStatusLocal(todoTitle);
     }
 
     if(targetElement.classList.contains("remove-todo")){
         parentElement.remove();
+
+        removeTodoLocal(todoTitle);
     }
     if(targetElement.classList.contains("edit-todo")){
         toggleForm();
@@ -110,3 +173,74 @@ editForm.addEventListener("submit", (e) => {
 
     toggleForm();
 });
+
+searchInput.addEventListener("keyup", (e) => {
+    const search = e.target.value;
+
+    getSearch(search);
+});
+
+eraseBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    searchInput.value = "";
+
+    searchInput.dispatchEvent(new Event("keyup"));
+});
+
+filterBtn.addEventListener("change", (e) => {
+    const filterValue = e.target.value;
+
+    filterList(filterValue);
+});
+
+// Local Storage
+const getTodosLocal = () => {
+    const todo = JSON.parse(localStorage.getItem("todos")) || [];
+
+    return todo;
+};
+
+const loadTodo = () => {
+    const todos = getTodosLocal();
+
+    todos.forEach((todo) => {
+        saveTodo(todo.text, todo.done, 0);
+    });
+};
+
+const saveTodoLocal = (todo) => {
+
+    const todoList = getTodosLocal();
+
+    todoList.push(todo);
+
+    localStorage.setItem("todos", JSON.stringify(todoList));
+
+};
+
+const removeTodoLocal = (todoText) => {
+    const todoList = getTodosLocal();
+
+    const filterTodo = todoList.filter((todo) => todo.text !== todoText);
+
+    localStorage.setItem("todos", JSON.stringify(filterTodo));
+};
+
+const updateTodoStatusLocal = (todoText) => {
+    const todoList = getTodosLocal();
+
+    todoList.map((todo) => todo.text === todoText ? todo.done = !todo.done : null);
+
+    localStorage.setItem("todos", JSON.stringify(todoList));
+};
+
+const updateTodoLocal = (todoOldText, todoNewText) => {
+    const todoList = getTodosLocal();
+
+    todoList.map((todo) => todo.text === todoOldText ? (todo.text = todoNewText): null);
+
+    localStorage.setItem("todos", JSON.stringify(todoList));
+};
+
+loadTodo();
